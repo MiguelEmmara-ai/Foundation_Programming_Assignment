@@ -1,5 +1,7 @@
 package B_Stage;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.InputMismatchException;
 import java.util.Random;
@@ -164,46 +166,59 @@ public class Gameplay {
 
     public void winners(Competitors[] competitors) {
         DecimalFormat df = new DecimalFormat("#.00");
-        double gold = 0;
-        double silver = 0;
-        double bronze = 0;
+        BigDecimal bd;
+        double bronze;
+        double silver;
+        double gold;
 
+        bronze = gold = silver = Integer.MIN_VALUE;
         for (Competitors competitor : competitors) {
-
-            if (competitor.getPlayer_best_score() > gold && competitor.getPlayer_best_score() > silver &&
-                    competitor.getPlayer_best_score() > bronze) {
-                gold = competitor.getPlayer_best_score();
+            bd = BigDecimal.valueOf(competitor.getPlayer_best_score()).setScale(2, RoundingMode.HALF_UP);
+            double dp2 = bd.doubleValue();
+            /* If current element is greater than
+            gold*/
+            if (dp2 > gold) {
+                bronze = silver;
+                silver = gold;
+                gold = dp2;
                 winners_name[0] = competitor.getPlayer_name();
-                winners_medal[0] = "Gold";
-                winners_score[0] = gold;
-            } else if (competitor.getPlayer_best_score() > silver && competitor.getPlayer_best_score() < gold &&
-                    competitor.getPlayer_best_score() > bronze) {
-                silver = competitor.getPlayer_best_score();
-                winners_name[1] = competitor.getPlayer_name();
-                winners_medal[1] = "Silver";
-                winners_score[1] = silver;
-            } else {
-                bronze = competitor.getPlayer_best_score();
-                winners_name[2] = competitor.getPlayer_name();
-                winners_medal[2] = "Bronze";
-                winners_score[2] = bronze;
             }
+
+            /* If arr[i] is in between gold and
+            silver then update silver  */
+            else if (dp2 > silver) {
+                bronze = silver;
+                silver = dp2;
+                winners_name[1] = competitor.getPlayer_name();
+            } else if (dp2 > bronze) {
+                bronze = dp2;
+                winners_name[2] = competitor.getPlayer_name();
+            }
+
+            winners_medal[0] = "Gold";
+            winners_score[0] = gold;
+
+
+            winners_medal[1] = "Silver";
+            winners_score[1] = silver;
+
+
+            winners_medal[2] = "Bronze";
+            winners_score[2] = bronze;
         }
+
         printWinner(df);
     }
 
     private void printWinner(DecimalFormat df) {
-        System.out.println("\nWINNERS OF 2019 DISCUS EVENT FOR MEN COMPETITION RESULTS:\n" +
+        System.out.println("\nWINNERS OF 2021 DISCUS EVENT FOR MEN COMPETITION RESULTS:\n" +
                 "=========================================================\n");
-        System.out.printf("%-8s Won a %-7s Medal With A Best Throw Of %5s Metres", winners_name[0], winners_medal[0],
-                df.format(winners_score[0]));
-        System.out.println();
-        System.out.printf("%-8s Won a %-7s Medal With A Best Throw Of %5s Metres", winners_name[1], winners_medal[1],
-                df.format(winners_score[1]));
-        System.out.println();
-        System.out.printf("%-8s Won a %-7s Medal With A Best Throw Of %5s Metres", winners_name[2], winners_medal[2],
-                df.format(winners_score[2]));
-        System.out.println();
+
+        for (int i = 0; i < ROUND; i++) {
+            System.out.printf("%-8s Won a %-7s Medal With A Best Throw Of %5s Metres", winners_name[i], winners_medal[i],
+                    df.format(winners_score[i]));
+            System.out.println();
+        }
 
         System.out.println("\nCongratulations to the winners!");
     }
